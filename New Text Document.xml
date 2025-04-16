@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kompres Foto Online - KompresCepat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+    }
+    h2 {
+      color: #0d6efd;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #drop-area {
+      border: 2px dashed #aaa;
+      padding: 30px;
+      text-align: center;
+      margin-bottom: 20px;
+      border-radius: 12px;
+    }
+    #result {
+      margin-top: 20px;
+    }
+    .dark-mode {
+      background-color: #1c1c1c !important;
+      color: white !important;
+    }
+    .dark-mode input,
+    .dark-mode button {
+      background-color: #333 !important;
+      color: white !important;
+      border-color: #666;
+    }
+    .counter {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dark Mode Toggle -->
+  <label style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
+    <input type="checkbox" id="darkToggle" onchange="toggleDark()" /> 🌙 Dark Mode
+  </label>
+
+  <h2>Kompres Foto Online Gratis</h2>
+  <p>Kompresi gambar JPG atau PNG tanpa aplikasi. Seret dan lepas gambar Anda, atau unggah secara manual.</p>
+
+  <!-- Drop Area -->
+  <div id="drop-area">
+    <p>Atau seret & lepas gambar di sini</p>
+    <input type="file" id="fileElem" accept="image/*" style="display:none" onchange="handleFiles(this.files)">
+    <label for="fileElem" style="cursor: pointer; color: #0d6efd;">Pilih Gambar Manual</label>
+  </div>
+
+  <!-- Kompres Result -->
+  <div id="result"></div>
+  <p class="counter">Total gambar dikompresi: <span id="counter">0</span></p>
+
+  <script>
+    let count = 0;
+
+    function toggleDark() {
+      document.body.classList.toggle("dark-mode");
+    }
+
+    function handleFiles(files) {
+      for (let i = 0; i < files.length; i++) {
+        compressImage(files[i]);
+      }
+    }
+
+    function compressImage(file) {
+      if (!file.type.startsWith('image/')) return;
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = function (event) {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = function () {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+
+          const maxWidth = 800;
+          const scaleSize = maxWidth / img.width;
+          canvas.width = maxWidth;
+          canvas.height = img.height * scaleSize;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          canvas.toBlob(
+            (blob) => {
+              const link = document.createElement('a');
+              link.download = 'kompres-' + file.name;
+              link.href = URL.createObjectURL(blob);
+              link.textContent = '📥 Unduh ' + file.name;
+              link.style.display = 'block';
+              document.getElementById('result').appendChild(link);
+              updateCounter();
+            },
+            'image/jpeg',
+            0.7
+          );
+        };
+      };
+    }
+
+    function updateCounter() {
+      count++;
+      document.getElementById("counter").innerText = count;
+    }
+
+    const dropArea = document.getElementById("drop-area");
+    dropArea.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropArea.style.borderColor = "#0d6efd";
+    });
+    dropArea.addEventListener("dragleave", () => {
+      dropArea.style.borderColor = "#aaa";
+    });
+    dropArea.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropArea.style.borderColor = "#aaa";
+      const files = e.dataTransfer.files;
+      handleFiles(files);
+    });
+  </script>
+</body>
+</html>
