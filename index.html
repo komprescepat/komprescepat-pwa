@@ -6,51 +6,89 @@
   <title>Ubah Ukuran & Background Foto</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9f9f9;
       padding: 20px;
       max-width: 800px;
       margin: auto;
     }
     h2 {
       color: #0d6efd;
+      text-align: center;
+      margin-bottom: 20px;
     }
-    label, input, select, button {
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #0b5ed7;
+    }
+    a#downloadLink {
       display: block;
-      margin-bottom: 10px;
+      text-align: center;
+      padding: 10px;
+      background-color: #198754;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      margin-top: 15px;
     }
     canvas {
-      max-width: 100%;
+      width: 100%;
       border: 1px solid #ccc;
-      border-radius: 6px;
-      margin-top: 10px;
+      border-radius: 10px;
+      margin-top: 15px;
     }
   </style>
 </head>
 <body>
   <h2>Ubah Ukuran, Background & Kompres Foto</h2>
-  <input type="file" id="upload" accept="image/*">
+  <div class="card">
+    <input type="file" id="upload" accept="image/*">
 
-  <label for="width">Lebar (px):</label>
-  <input type="number" id="width" placeholder="Contoh: 800">
+    <label for="width">Lebar (px):</label>
+    <input type="number" id="width" placeholder="Contoh: 800">
 
-  <label for="height">Tinggi (px):</label>
-  <input type="number" id="height" placeholder="Contoh: 600">
+    <label for="height">Tinggi (px):</label>
+    <input type="number" id="height" placeholder="Contoh: 600">
 
-  <label for="bg">Warna Background:</label>
-  <select id="bg">
-    <option value="transparent">Transparan</option>
-    <option value="white">Putih</option>
-    <option value="red">Merah</option>
-    <option value="blue">Biru</option>
-  </select>
+    <label for="bg">Warna Background:</label>
+    <select id="bg">
+      <option value="transparent">Transparan</option>
+      <option value="white">Putih</option>
+      <option value="red">Merah</option>
+      <option value="blue">Biru</option>
+    </select>
 
-  <label for="targetSize">Ukuran Maksimal (KB):</label>
-  <input type="number" id="targetSize" placeholder="Contoh: 200">
+    <label for="targetSize">Ukuran Maksimal (KB):</label>
+    <input type="number" id="targetSize" placeholder="Contoh: 200">
 
-  <button onclick="resizeAndChangeBG()">🔧 Proses Gambar</button>
-  <a id="downloadLink" style="display:none; margin-top:10px;" download="hasil.png">📥 Unduh Gambar</a>
-
-  <canvas id="canvas"></canvas>
+    <button onclick="resizeAndChangeBG()">🔧 Proses Gambar</button>
+    <a id="downloadLink" download="hasil.jpg">📥 Unduh Gambar</a>
+    <canvas id="canvas"></canvas>
+  </div>
 
   <script>
     let uploadedImage = null;
@@ -60,6 +98,8 @@
       reader.onload = function(event) {
         uploadedImage = new Image();
         uploadedImage.onload = () => {
+          document.getElementById('width').value = uploadedImage.width;
+          document.getElementById('height').value = uploadedImage.height;
           drawImage();
         }
         uploadedImage.src = event.target.result;
@@ -83,7 +123,7 @@
       const bgColor = document.getElementById('bg').value;
       const targetSize = parseInt(document.getElementById('targetSize').value); // dalam KB
 
-      if (!width || !height) {
+      if (!width || !height || width <= 0 || height <= 0) {
         alert("Masukkan ukuran lebar dan tinggi yang valid!");
         return;
       }
@@ -102,7 +142,6 @@
 
       const link = document.getElementById('downloadLink');
 
-      // Kompresi berdasarkan targetSize (opsional)
       let quality = 0.9;
       let blob = null;
 
@@ -120,7 +159,7 @@
       attemptCompression(function(finalBlob) {
         blob = finalBlob;
         link.href = URL.createObjectURL(blob);
-        link.style.display = 'inline-block';
+        link.style.display = 'block';
       });
     }
   </script>
