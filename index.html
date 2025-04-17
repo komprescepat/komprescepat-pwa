@@ -1,78 +1,88 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ubah Ukuran & Background Foto</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kompresi & Ubah Ukuran Foto</title>
   <style>
+    :root {
+      --primary: #2563eb;
+      --accent: #10b981;
+      --bg: #f9fafb;
+      --text: #111827;
+      --muted: #6b7280;
+    }
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f9f9f9;
-      padding: 20px;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 2rem;
       max-width: 800px;
       margin: auto;
     }
-    h2 {
-      color: #0d6efd;
+    h1 {
       text-align: center;
-      margin-bottom: 20px;
+      color: var(--primary);
+      margin-bottom: 1.5rem;
     }
     .card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      padding: 20px;
+      background: #ffffff;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
     }
     label {
-      font-weight: bold;
-      margin-top: 10px;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      display: block;
     }
     input, select, button {
       width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      margin-bottom: 15px;
-      box-sizing: border-box;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      border: 1px solid #d1d5db;
+      margin-bottom: 1rem;
+      font-size: 1rem;
     }
     button {
-      background-color: #0d6efd;
+      background-color: var(--primary);
       color: white;
-      border: none;
-      cursor: pointer;
       font-weight: bold;
+      transition: 0.3s;
     }
     button:hover {
-      background-color: #0b5ed7;
+      background-color: #1d4ed8;
     }
     a#downloadLink {
-      display: block;
-      text-align: center;
-      padding: 10px;
-      background-color: #198754;
+      display: none;
+      background-color: var(--accent);
       color: white;
-      border-radius: 8px;
+      text-align: center;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
       text-decoration: none;
-      margin-top: 15px;
+      margin-top: 1rem;
     }
     canvas {
+      display: none;
       width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      margin-top: 15px;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
-  <h2>Ubah Ukuran, Background & Kompres Foto</h2>
+  <h1>Editor Foto: Resize, Background & Kompres</h1>
   <div class="card">
-    <input type="file" id="upload" accept="image/*">
+    <label for="upload">Pilih Gambar:</label>
+    <input type="file" id="upload" accept="image/*" />
 
     <label for="width">Lebar (px):</label>
-    <input type="number" id="width" placeholder="Contoh: 800">
+    <input type="number" id="width" placeholder="Contoh: 800" />
 
     <label for="height">Tinggi (px):</label>
-    <input type="number" id="height" placeholder="Contoh: 600">
+    <input type="number" id="height" placeholder="Contoh: 600" />
 
     <label for="bg">Warna Background:</label>
     <select id="bg">
@@ -83,9 +93,9 @@
     </select>
 
     <label for="targetSize">Ukuran Maksimal (KB):</label>
-    <input type="number" id="targetSize" placeholder="Contoh: 200">
+    <input type="number" id="targetSize" placeholder="Contoh: 200" />
 
-    <button onclick="resizeAndChangeBG()">🔧 Proses Gambar</button>
+    <button id="process">🔧 Proses Gambar</button>
     <a id="downloadLink" download="hasil.jpg">📥 Unduh Gambar</a>
     <canvas id="canvas"></canvas>
   </div>
@@ -93,41 +103,38 @@
   <script>
     let uploadedImage = null;
 
-    document.getElementById('upload').addEventListener('change', function(e) {
+    document.getElementById('upload').addEventListener('change', function (e) {
       const reader = new FileReader();
-      reader.onload = function(event) {
+      reader.onload = function (event) {
         uploadedImage = new Image();
         uploadedImage.onload = () => {
           document.getElementById('width').value = uploadedImage.width;
           document.getElementById('height').value = uploadedImage.height;
-          drawImage();
-        }
+          document.getElementById('canvas').style.display = 'none';
+          document.getElementById('downloadLink').style.display = 'none';
+        };
         uploadedImage.src = event.target.result;
-      }
+      };
       reader.readAsDataURL(e.target.files[0]);
     });
 
-    function resizeAndChangeBG() {
+    document.getElementById('process').addEventListener('click', () => {
       if (!uploadedImage) {
-        alert("Silakan unggah gambar terlebih dahulu.");
+        alert('Silakan unggah gambar terlebih dahulu.');
         return;
       }
-      drawImage();
-    }
-
-    function drawImage() {
-      const canvas = document.getElementById('canvas');
-      const ctx = canvas.getContext('2d');
       const width = parseInt(document.getElementById('width').value);
       const height = parseInt(document.getElementById('height').value);
       const bgColor = document.getElementById('bg').value;
-      const targetSize = parseInt(document.getElementById('targetSize').value); // dalam KB
+      const targetSize = parseInt(document.getElementById('targetSize').value);
 
       if (!width || !height || width <= 0 || height <= 0) {
-        alert("Masukkan ukuran lebar dan tinggi yang valid!");
+        alert('Masukkan ukuran lebar dan tinggi yang valid!');
         return;
       }
 
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
       canvas.width = width;
       canvas.height = height;
 
@@ -139,29 +146,27 @@
       }
 
       ctx.drawImage(uploadedImage, 0, 0, width, height);
-
-      const link = document.getElementById('downloadLink');
+      canvas.style.display = 'block';
 
       let quality = 0.9;
-      let blob = null;
 
-      function attemptCompression(callback) {
-        canvas.toBlob(function(b) {
-          if (targetSize && b.size / 1024 > targetSize && quality > 0.1) {
+      function tryCompress(callback) {
+        canvas.toBlob(function (blob) {
+          if (targetSize && blob.size / 1024 > targetSize && quality > 0.1) {
             quality -= 0.05;
-            attemptCompression(callback);
+            tryCompress(callback);
           } else {
-            callback(b);
+            callback(blob);
           }
         }, 'image/jpeg', quality);
       }
 
-      attemptCompression(function(finalBlob) {
-        blob = finalBlob;
+      tryCompress(function (blob) {
+        const link = document.getElementById('downloadLink');
         link.href = URL.createObjectURL(blob);
         link.style.display = 'block';
       });
-    }
+    });
   </script>
 </body>
 </html>
