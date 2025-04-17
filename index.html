@@ -95,12 +95,6 @@
   <div class="card">
     <input type="file" id="upload" accept="image/*" multiple>
 
-    <label for="width">Lebar (px):</label>
-    <input type="number" id="width" placeholder="Contoh: 800">
-
-    <label for="height">Tinggi (px):</label>
-    <input type="number" id="height" placeholder="Contoh: 600">
-
     <label for="bg">Warna Background:</label>
     <select id="bg">
       <option value="transparent">Transparan</option>
@@ -127,9 +121,6 @@
       const preview = document.getElementById('preview');
       preview.innerHTML = '';
 
-      if (!width || !height || width <= 0 || height <= 0) {
-        alert("Masukkan ukuran lebar dan tinggi yang valid!");
-        return;
       }
 
       uploadedFiles.forEach(file => {
